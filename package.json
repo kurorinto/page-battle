@@ -10,6 +10,8 @@
     "test": "plasmo test"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.2.6",
+    "antd": "^5.13.1",
     "plasmo": "0.84.0",
     "react": "18.2.0",
     "react-dom": "18.2.0"
@@ -20,7 +22,10 @@
     "@types/node": "20.9.0",
     "@types/react": "18.2.37",
     "@types/react-dom": "18.2.15",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
     "prettier": "3.0.3",
+    "tailwindcss": "^3.3.5",
     "typescript": "5.2.2"
   },
   "manifest": {
