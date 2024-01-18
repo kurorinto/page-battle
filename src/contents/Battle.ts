@@ -62,7 +62,7 @@ class Battle {
           this.addAction('fire')
           break
       }
-      // e.preventDefault()
+      e.preventDefault()
     }
   }
 
@@ -89,7 +89,7 @@ class Battle {
           this.removeAction('fire')
           break
       }
-      // e.preventDefault()
+      e.preventDefault()
     }
   }
 

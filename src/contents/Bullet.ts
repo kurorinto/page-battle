@@ -25,6 +25,7 @@ class Bullet extends BattleObject {
   move(delta: number) {
     ({ x: this.x, y: this.y } = Bullet.movePoint({ x: this.x, y: this.y }, this.deg, delta))
     this.safe = this.boundaryLimit()
+    this.murderElement()
   }
 
   boundaryLimit() {
@@ -35,6 +36,27 @@ class Bullet extends BattleObject {
       return false
     }
     return true
+  }
+
+  murderElement() {
+    const el = this.getElementFromPoint()
+    if (el) {
+      el.remove()
+    }
+  }
+
+  getElementFromPoint() {
+    let el = document.elementFromPoint(this.x, this.y)
+    if (!el) {
+      return false
+    }
+    if (el.childElementCount) {
+      return false
+    }
+    if (el.nodeType === Node.TEXT_NODE) {
+      el = el.parentElement
+    }
+    return el
   }
 }
 
