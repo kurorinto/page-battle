@@ -31,7 +31,7 @@ class Rocket extends BattleObject {
       ],
     ]
     this.rotate(deg)
-    this.fire = throttle(this.fire.bind(this), 200, { trailing: false });
+    this.fire = throttle(this.fire.bind(this), 100, { trailing: false });
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -52,7 +52,7 @@ class Rocket extends BattleObject {
     ctx.restore()
     // 渲染子弹
     this.bullets.forEach((bullet) => {
-      if (bullet.safe) {
+      if (bullet.existed) {
         bullet.move(12)
         bullet.draw(ctx)
       }
