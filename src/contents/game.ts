@@ -1,17 +1,10 @@
-interface Rocket {
-  ready?: boolean
-  type: 'image'
-  image: HTMLImageElement
-  x: number
-  y: number
-  w: number
-  h: number
-}
+import Rocket from "./Rocket"
 
 class Game {
   canvas: HTMLCanvasElement
   ctx: CanvasRenderingContext2D
   rocket: Rocket
+  downingActions: Array<'fire' | 'move' | 'rotate' | 'reRotate'> = []
 
   constructor(container: HTMLElement) {
     // 创建画布
@@ -20,23 +13,30 @@ class Game {
     // 获取上下文
     this.ctx = this.canvas.getContext("2d")
     // 加载图片
-    this.rocket = {
+    this.rocket = new Rocket({
       x: 100,
       y: 100,
       w: 30,
       h: 30,
-      type: 'image',
-      image: new Image()
-    }
-    this.rocket.image.src = 'https://sitecdn.zcycdn.com/f2e-assets/f57001d7-905a-4d36-b224-08ad69901ab2.svg'
-    this.rocket.image.onload = () => {
-      this.rocket.ready = true
-    }
+    })
     // 屏幕尺寸变化
     this.resizeCanvas()
     this.bindEvents()
     // 游戏开始
     this.animate()
+  }
+
+  addAction(action: 'fire' | 'move' | 'rotate' | 'reRotate') {
+    if (!this.downingActions.includes(action)) {
+      this.downingActions.push(action)
+    }
+  }
+
+  removeAction(action: 'fire' | 'move' | 'rotate' | 'reRotate') {
+    const index = this.downingActions.indexOf(action)
+    if (index > -1) {
+      this.downingActions.splice(index, 1)
+    }
   }
 
   keydownHandler(e: KeyboardEvent) {
@@ -46,31 +46,63 @@ class Game {
         case 'ArrowUp':
         case 'w':
         case 'W':
-          this.rocket.y -= 1
+          this.addAction('move')
           break;
         case 'ArrowLeft':
         case 'a':
         case 'A':
-          this.rotate(this.rocket, -10)
+          this.addAction('reRotate')
           break
         case 'ArrowRight':
         case 'd':
         case 'D':
-          this.rotate(this.rocket, 10)
+          this.addAction('rotate')
+          break
+        case ' ':
+          this.addAction('fire')
           break
       }
-      e.preventDefault()
+      // e.preventDefault()
+    }
+  }
+
+  keyupHandler(e: KeyboardEvent) {
+    const key = e.key
+    if (['ArrowUp', 'w', 'W', 'ArrowLeft', 'a', 'A', 'ArrowRight', 'd', 'D', ' '].includes(key)) {
+      switch (key) {
+        case 'ArrowUp':
+        case 'w':
+        case 'W':
+          this.removeAction('move')
+          break;
+        case 'ArrowLeft':
+        case 'a':
+        case 'A':
+          this.removeAction('reRotate')
+          break
+        case 'ArrowRight':
+        case 'd':
+        case 'D':
+          this.removeAction('rotate')
+          break
+        case ' ':
+          this.removeAction('fire')
+          break
+      }
+      // e.preventDefault()
     }
   }
 
   bindEvents() {
     window.addEventListener("resize", this.resizeCanvas.bind(this))
     window.addEventListener('keydown', this.keydownHandler.bind(this))
+    window.addEventListener('keyup', this.keyupHandler.bind(this))
   }
 
   unbindEvents() {
     window.removeEventListener("resize", this.resizeCanvas.bind(this))
     window.removeEventListener('keydown', this.keydownHandler.bind(this))
+    window.removeEventListener('keyup', this.keyupHandler.bind(this))
   }
 
   resizeCanvas() {
@@ -78,24 +110,11 @@ class Game {
     this.canvas.height = window.innerHeight
   }
 
-  /** 旋转 */
-  rotate(obj: Rocket, deg: number) {
-    // 旋转时，变化中心 -> 旋转 -> 变换回来
-    this.ctx.translate(obj.x + obj.w / 2, obj.y + obj.h / 2)
-    this.ctx.rotate(deg * Math.PI / 180)
-    this.ctx.translate(-(obj.x + obj.w / 2), -(obj.y + obj.h / 2))
-  }
-
-  /** 绘制 */
-  draw(obj: Rocket) {
-    obj.ready && this.ctx.drawImage(obj.image, obj.x, obj.y, 30, 30)
-  }
-
   /** 渲染画布 */
   render() {
     this.clear()
     // 渲染火箭
-    this.draw(this.rocket)
+    this.rocket.stroke(this.ctx)
   }
 
   /** 动画 */
