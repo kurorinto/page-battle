@@ -113,6 +113,23 @@ class Game {
   /** 渲染画布 */
   render() {
     this.clear()
+    // 执行动作
+    this.downingActions.forEach((action) => {
+      switch (action) {
+        case 'fire':
+          // this.rocket.fire(this.ctx)
+          break
+        case 'move':
+          this.rocket.move(5)
+          break
+        case 'rotate':
+          this.rocket.rotate(5)
+          break
+        case 'reRotate':
+          this.rocket.rotate(-5)
+          break
+      }
+    })
     // 渲染火箭
     this.rocket.stroke(this.ctx)
   }
