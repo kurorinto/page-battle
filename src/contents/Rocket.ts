@@ -1,39 +1,46 @@
+import BattleObject from "./BattleObject"
+import Bullet from "./Bullet"
+import Vector from "./Vector"
+import throttle from 'lodash/throttle'
 
-class Rocket {
-  x: number
-  y: number
-  w: number
-  h: number
+class Rocket extends BattleObject {
+  /** 火箭朝向 */
   deg: number
-  lines: [number, number][][]
-  strokeStyle = '#20242C'
+  /** 火箭绘制线条 */
+  lines: Vector[][] = []
+  /** 子弹 */
+  bullets: Bullet[] = []
+  /** 火箭绘制颜色 */
+  color = '#20242C'
+
   constructor({ x, y, w, h, deg = 0 }: { x: number; y: number; w: number; h: number; deg?: number }) {
-    this.x = x
-    this.y = y
-    this.w = w
-    this.h = h
+    super({ x, y, w, h })
+
     this.deg = deg
     this.lines = [
       [
-        [x - w / 2, y - h / 2],
-        [x, y + h / 2],
-        [x + w / 2, y - h / 2],
-        [x, y - h / 4],
-        [x - w / 2, y - h / 2],
+        new Vector(x - w / 2, y - h / 2),
+        new Vector(x, y + h / 2),
+        new Vector(x + w / 2, y - h / 2),
+        new Vector(x, y - h / 4),
+        new Vector(x - w / 2, y - h / 2),
       ],
       [
-        [x, y - h / 4],
-        [x, y + h / 2],
+        new Vector(x, y - h / 4),
+        new Vector(x, y + h / 2),
       ],
     ]
     this.rotate(deg)
+    this.fire = throttle(this.fire.bind(this), 200, { trailing: false });
   }
-  stroke(ctx: CanvasRenderingContext2D) {
+
+  draw(ctx: CanvasRenderingContext2D) {
+    // 渲染火箭
     ctx.save()
-    ctx.strokeStyle = this.strokeStyle
+    ctx.strokeStyle = this.color
     ctx.beginPath()
     this.lines.forEach((line) => {
-      line.forEach(([x, y], i) => {
+      line.forEach(({ x, y }, i) => {
         if (i === 0) {
           ctx.moveTo(x, y)
         } else {
@@ -43,16 +50,26 @@ class Rocket {
     })
     ctx.stroke()
     ctx.restore()
+    // 渲染子弹
+    this.bullets = this.bullets.filter(bullet => bullet.x <= window.innerWidth && bullet.y <= window.innerHeight)
+    this.bullets.forEach((bullet) => {
+      if (bullet.x <= window.innerWidth && bullet.y <= window.innerHeight) {
+        bullet.move(12)
+        bullet.draw(ctx)
+      }
+    })
   }
+
   rotate(deg: number) {
     this.lines = this.lines.map((line) => {
       return line.map((point) => {
-        return Rocket.rotatePoint(point, [this.x, this.y], deg)
+        return Rocket.rotatePoint(point, new Vector(this.x, this.y), deg)
       })
     })
     // 保存当前角度
     this.deg += deg
   }
+
   move(delta: number) {
     this.lines = this.lines.map((line) => {
       return line.map((point) => {
@@ -60,23 +77,16 @@ class Rocket {
       })
     });
     // 保存当前位置
-    [this.x, this.y] = Rocket.movePoint([this.x, this.y], this.deg, delta)
+    ({ x: this.x, y: this.y } = Rocket.movePoint(new Vector(this.x, this.y), this.deg, delta))
   }
 
-  static movePoint([x, y]: [number, number], deg, delta: number): [number, number] {
-    const rad = deg * (Math.PI / 180);
-    const newX = x - delta * Math.sin(rad)
-    const newY = y + delta * Math.cos(rad)
-    return [newX, newY]
-  }
+  fire() {
+    const w = 5
+    const h = 5
+    const { x, y } = Rocket.movePoint(new Vector(this.x, this.y), this.deg, this.w / 2 + w / 2);
 
-  static rotatePoint = ([x1, y1]: [number, number], [x2, y2]: [number, number], deg: number): [number, number] => {
-    let rad = (deg * Math.PI) / 180
-    let newX = x2 + (x1 - x2) * Math.cos(rad) - (y1 - y2) * Math.sin(rad)
-    let newY = y2 + (x1 - x2) * Math.sin(rad) + (y1 - y2) * Math.cos(rad)
-    return [newX, newY]
+    this.bullets.push(new Bullet({ x, y, deg: this.deg, w, h }));
   }
-
 }
 
 export default Rocket

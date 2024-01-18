@@ -117,7 +117,7 @@ class Battle {
     this.downingActions.forEach((action) => {
       switch (action) {
         case 'fire':
-          // this.rocket.fire(this.ctx)
+          this.rocket.fire()
           break
         case 'move':
           this.rocket.move(5)
@@ -131,7 +131,7 @@ class Battle {
       }
     })
     // 渲染火箭
-    this.rocket.stroke(this.ctx)
+    this.rocket.draw(this.ctx)
   }
 
   /** 动画 */
