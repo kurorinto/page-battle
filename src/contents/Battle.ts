@@ -1,6 +1,6 @@
 import Rocket from "./Rocket"
 
-class Game {
+class Battle {
   canvas: HTMLCanvasElement
   ctx: CanvasRenderingContext2D
   rocket: Rocket
@@ -153,4 +153,4 @@ class Game {
   }
 }
 
-export default Game
+export default Battle

@@ -1,7 +1,7 @@
 import type { PlasmoCSConfig, PlasmoCSUIProps } from "plasmo"
 import { useEffect, type FC, useRef } from "react"
 
-import Game from "./game"
+import Battle from "./Battle"
 
 // 进行 content_scripts 的配置
 export const config: PlasmoCSConfig = {
@@ -14,7 +14,7 @@ const MyPopup: FC<PlasmoCSUIProps> = ({ anchor }) => {
   // 初始化
   const init = () => {
     if (!containerRef.current) return 
-    new Game(containerRef.current)
+    new Battle(containerRef.current)
   }
 
   useEffect(() => {
