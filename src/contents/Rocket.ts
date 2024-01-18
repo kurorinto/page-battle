@@ -51,9 +51,8 @@ class Rocket extends BattleObject {
     ctx.stroke()
     ctx.restore()
     // 渲染子弹
-    this.bullets = this.bullets.filter(bullet => bullet.x <= window.innerWidth && bullet.y <= window.innerHeight)
     this.bullets.forEach((bullet) => {
-      if (bullet.x <= window.innerWidth && bullet.y <= window.innerHeight) {
+      if (bullet.safe) {
         bullet.move(12)
         bullet.draw(ctx)
       }

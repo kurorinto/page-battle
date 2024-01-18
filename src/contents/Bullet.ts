@@ -3,10 +3,13 @@ import BattleObject from "./BattleObject";
 class Bullet extends BattleObject {
   /** 子弹发射方向 */
   deg: number
+  /** 是否越界 */
+  safe = true
 
   constructor({ x, y, w = 10, h = 10, deg }: { x: number; y: number; w?: number; h?: number; deg: number }) {
     super({ x, y, w, h })
     this.deg = deg
+    this.safe = true
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -21,6 +24,17 @@ class Bullet extends BattleObject {
 
   move(delta: number) {
     ({ x: this.x, y: this.y } = Bullet.movePoint({ x: this.x, y: this.y }, this.deg, delta))
+    this.safe = this.boundaryLimit()
+  }
+
+  boundaryLimit() {
+    if (this.x < 0 || this.x > window.innerWidth) {
+      return false
+    }
+    if (this.y < 0 || this.y > window.innerHeight) {
+      return false
+    }
+    return true
   }
 }
 
