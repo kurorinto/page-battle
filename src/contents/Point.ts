@@ -1,4 +1,4 @@
-class Vector {
+class Point {
   x: number
   y: number
 
@@ -8,4 +8,4 @@ class Vector {
   }
 }
 
-export default Vector
+export default Point
