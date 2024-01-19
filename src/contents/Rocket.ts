@@ -118,12 +118,10 @@ class Rocket extends BattleObject {
   move(deltaX: number, deltaY: number) {
     this.lines = this.lines.map((line) => {
       return line.map((point) => {
-        // return Rocket.movePointFromAngle(point, 0, delta)
         return new Point(point.x + deltaX, point.y + deltaY)
       })
     });
     // 保存当前位置
-    // ({ x: this.x, y: this.y } = Rocket.movePointFromAngle(new Point(this.x, this.y), this.deg, delta))
     ({ x: this.x, y: this.y } = new Point(this.x + deltaX, this.y + deltaY))
   }
 
