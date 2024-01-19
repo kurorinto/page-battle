@@ -38,7 +38,7 @@ class Bullet extends BattleObject {
     return true
   }
 
-  hitAnimate() {
+  hitAnimate(el: HTMLElement) {
     this.existed = false
   }
 
@@ -46,22 +46,26 @@ class Bullet extends BattleObject {
     const el = this.getElementFromPoint()
     if (el) {
       el.remove()
-      this.hitAnimate()
+      this.hitAnimate(el)
     }
   }
 
   getElementFromPoint() {
     let el = document.elementFromPoint(this.x, this.y)
     if (!el) {
-      return false
+      return null
     }
     if (el.childElementCount) {
-      return false
+      return null
     }
     if (el.nodeType === Node.TEXT_NODE) {
       el = el.parentElement
     }
-    return el
+    // 只消除元素节点
+    if (el.nodeType !== Node.ELEMENT_NODE) {
+      return null
+    }
+    return el as HTMLElement
   }
 }
 
