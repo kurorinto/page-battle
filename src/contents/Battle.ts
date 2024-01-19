@@ -5,6 +5,7 @@ class Battle {
   ctx: CanvasRenderingContext2D
   rocket: Rocket
   downingActions: Array<'fire' | 'move' | 'rotate' | 'reRotate'> = []
+  static time = 0
 
   constructor(container: HTMLElement) {
     // 创建画布
@@ -24,6 +25,8 @@ class Battle {
     this.bindEvents()
     // 游戏开始
     this.animate()
+    // 开始计时
+    Battle.time = Date.now()
   }
 
   addAction(action: 'fire' | 'move' | 'rotate' | 'reRotate') {
@@ -119,17 +122,19 @@ class Battle {
         case 'fire':
           this.rocket.fire()
           break
-        case 'move':
-          this.rocket.move(5)
-          break
         case 'rotate':
-          this.rocket.rotate(5)
+          this.rocket.rotate(this.rocket.degSpeed)
           break
         case 'reRotate':
-          this.rocket.rotate(-5)
+          this.rocket.rotate(-this.rocket.degSpeed)
           break
       }
     })
+    if (this.downingActions.includes('move')) {
+      this.rocket.accelerated = 20
+    } else {
+      this.rocket.accelerated = 0
+    }
     // 渲染火箭
     this.rocket.draw(this.ctx)
   }
@@ -138,6 +143,7 @@ class Battle {
   animate() {
     requestAnimationFrame(this.animate.bind(this))
     this.render()
+    Battle.time = Date.now()
   }
 
   /** 清空画布 */

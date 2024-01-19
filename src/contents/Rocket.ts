@@ -1,20 +1,32 @@
+import Battle from "./Battle"
 import BattleObject from "./BattleObject"
 import Bullet from "./Bullet"
 import Point from "./Point"
 import throttle from 'lodash/throttle'
 
 class Rocket extends BattleObject {
-  /** 火箭朝向 */
-  deg: number
-  /** 火箭绘制线条 */
+  /** 绘制线条 */
   lines: Point[][] = []
+  /** 绘制色 */
+  color = '#20242C'
+  /** 填充色 */
+  bg = '#ffffff'
+  /** 朝向角度 */
+  deg: number
+  /** 每秒加速度 */
+  accelerated = 0
+  /** 前进速度 */
+  speed = 0
+  /** 最大速度 */
+  maxSpeed = 10
+  /** 角度旋转速度 */
+  degSpeed = 5
   /** 子弹 */
   bullets: Bullet[] = []
   /** 子弹速度 */
   bulletSpeed = 15
-  /** 火箭绘制颜色 */
-  color = '#20242C'
-  bg = '#ffffff'
+  /** 减速度 */
+  decelerated = -10
 
   constructor({ x, y, w, h, deg = 0 }: { x: number; y: number; w: number; h: number; deg?: number }) {
     super({ x, y, w, h })
@@ -38,6 +50,11 @@ class Rocket extends BattleObject {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
+    const deltaSecond = (Date.now() - Battle.time) / 1000
+    // 根据加速度计算速度
+    this.speed = Math.max(Math.min(this.maxSpeed, this.speed + (this.accelerated + this.decelerated) * deltaSecond), 0)
+    // 移动火箭
+    this.move(this.speed)
     // 渲染火箭
     ctx.save()
     ctx.strokeStyle = this.color
@@ -68,7 +85,6 @@ class Rocket extends BattleObject {
         bullet.firework.draw(ctx)
       }
     })
-    console.log(this.bullets.length)
   }
 
   rotate(deg: number) {
