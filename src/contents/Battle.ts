@@ -99,12 +99,14 @@ class Battle {
   bindEvents() {
     window.addEventListener("resize", this.resizeCanvas.bind(this))
     window.addEventListener('keydown', this.keydownHandler.bind(this))
+    window.addEventListener('keypress', this.keydownHandler.bind(this))
     window.addEventListener('keyup', this.keyupHandler.bind(this))
   }
 
   unbindEvents() {
     window.removeEventListener("resize", this.resizeCanvas.bind(this))
     window.removeEventListener('keydown', this.keydownHandler.bind(this))
+    window.removeEventListener('keypress', this.keydownHandler.bind(this))
     window.removeEventListener('keyup', this.keyupHandler.bind(this))
   }
 
