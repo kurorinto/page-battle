@@ -15,10 +15,13 @@ class Rocket extends BattleObject {
   deg: number
   /** 每秒加速度 */
   accelerated = 0
+  acceleratedX = 0
+  acceleratedY = 0
   /** 前进速度 */
-  speed = 0
+  speedX = 0
+  speedY = 0
   /** 最大速度 */
-  maxSpeed = 10
+  maxSpeed = 10 * Math.sin(Math.PI / 4)
   /** 角度旋转速度 */
   degSpeed = 5
   /** 子弹 */
@@ -26,7 +29,8 @@ class Rocket extends BattleObject {
   /** 子弹速度 */
   bulletSpeed = 15
   /** 减速度 */
-  decelerated = -10
+  deceleratedX = 0
+  deceleratedY = 0
 
   constructor({ x, y, w, h, deg = 0 }: { x: number; y: number; w: number; h: number; deg?: number }) {
     super({ x, y, w, h })
@@ -51,10 +55,20 @@ class Rocket extends BattleObject {
 
   draw(ctx: CanvasRenderingContext2D) {
     const deltaSecond = (Date.now() - Battle.time) / 1000
-    // 根据加速度计算速度
-    this.speed = Math.max(Math.min(this.maxSpeed, this.speed + (this.accelerated + this.decelerated) * deltaSecond), 0)
+    // 加速度分量
+    this.acceleratedX = -this.accelerated * Math.sin((this.deg * Math.PI) / 180)
+    this.acceleratedY = this.accelerated * Math.cos((this.deg * Math.PI) / 180)
+    // 减速度分量
+    this.deceleratedX = this.getDecelerated(this.speedX)
+    this.deceleratedY = this.getDecelerated(this.speedY)
+    // 速度变化分量
+    const deltaVX = (this.acceleratedX + this.deceleratedX) * deltaSecond
+    const deltaVY = (this.acceleratedY + this.deceleratedY) * deltaSecond
+    // 速度分量
+    this.speedX = Math.max(Math.min(this.speedX + deltaVX, this.maxSpeed), -this.maxSpeed)
+    this.speedY = Math.max(Math.min(this.speedY + deltaVY, this.maxSpeed), -this.maxSpeed)
     // 移动火箭
-    this.move(this.speed)
+    this.move(this.speedX, this.speedY)
     // 渲染火箭
     ctx.save()
     ctx.strokeStyle = this.color
@@ -87,6 +101,10 @@ class Rocket extends BattleObject {
     })
   }
 
+  getDecelerated(speed: number) {
+    return -speed * 2
+  }
+
   rotate(deg: number) {
     this.lines = this.lines.map((line) => {
       return line.map((point) => {
@@ -97,14 +115,16 @@ class Rocket extends BattleObject {
     this.deg += deg
   }
 
-  move(delta: number) {
+  move(deltaX: number, deltaY: number) {
     this.lines = this.lines.map((line) => {
       return line.map((point) => {
-        return Rocket.movePointFromAngle(point, this.deg, delta)
+        // return Rocket.movePointFromAngle(point, 0, delta)
+        return new Point(point.x + deltaX, point.y + deltaY)
       })
     });
     // 保存当前位置
-    ({ x: this.x, y: this.y } = Rocket.movePointFromAngle(new Point(this.x, this.y), this.deg, delta))
+    // ({ x: this.x, y: this.y } = Rocket.movePointFromAngle(new Point(this.x, this.y), this.deg, delta))
+    ({ x: this.x, y: this.y } = new Point(this.x + deltaX, this.y + deltaY))
   }
 
   fire() {

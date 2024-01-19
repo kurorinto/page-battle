@@ -5,7 +5,7 @@ class Battle {
   ctx: CanvasRenderingContext2D
   rocket: Rocket
   downingActions: Array<'fire' | 'move' | 'rotate' | 'reRotate'> = []
-  static time = 0
+  static time = Date.now()
 
   constructor(container: HTMLElement) {
     // 创建画布

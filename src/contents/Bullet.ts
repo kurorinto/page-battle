@@ -34,7 +34,7 @@ class Bullet extends BattleObject {
   }
 
   hit() {
-    // 子弹消失 todo: 子弹消失动画
+    // 子弹消失
     this.existed = false
     // 创建击中焰火
     const { x, y, w, h } = this
