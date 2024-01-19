@@ -31,3 +31,5 @@ dist/
 
 # typescript
 .tsbuildinfo
+
+./src/contents/websiteAsteroids.js
