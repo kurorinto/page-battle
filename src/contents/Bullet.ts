@@ -5,7 +5,7 @@ import type Point from "./Point";
 
 class Bullet extends BattleObject {
   /** 子弹发射方向 */
-  deg: number
+  angle: number
   /** 是否存在 */
   existed = true
   /** 击中rect */
@@ -13,9 +13,9 @@ class Bullet extends BattleObject {
   /** 速度 */
   speed: number
 
-  constructor({ x, y, w = 10, h = 10, deg, speed }: { x: number; y: number; w?: number; h?: number; deg: number; speed: number }) {
-    super({ x, y, w, h })
-    this.deg = deg
+  constructor({ x, y, r, angle, speed }: { x: number; y: number; r: number; angle: number; speed: number }) {
+    super({ x, y, w: r, h: r })
+    this.angle = angle
     this.existed = true
     this.speed = speed
   }
@@ -37,7 +37,7 @@ class Bullet extends BattleObject {
     if (hitPoint) {
       this.hit(hitPoint)
     } else {
-      ({ x: this.x, y: this.y } = Bullet.movePointFromAngle({ x: this.x, y: this.y }, this.deg, delta))
+      ({ x: this.x, y: this.y } = Bullet.movePointFromAngle({ x: this.x, y: this.y }, this.angle, delta))
       this.existed = Bullet.boundaryLimit({ x: this.x, y: this.y })
     }
   }
@@ -55,7 +55,7 @@ class Bullet extends BattleObject {
     // 由于子弹每帧往前移动speed距离，可能会穿过一些小元素，因此需要判断子弹是否穿过了元素
     // 如果下一帧的移动规矩会跟元素交叉，就消除该元素，并把子弹位置设置为交叉点
     const deltas = BattleObject.getNumbersWithInterval(0, this.speed, 1)
-    const trackPoints = deltas.map(delta => Bullet.movePointFromAngle({ x: this.x, y: this.y }, this.deg, delta))
+    const trackPoints = deltas.map(delta => Bullet.movePointFromAngle({ x: this.x, y: this.y }, this.angle, delta))
     console.log(trackPoints)
 
     let el: HTMLElement | null

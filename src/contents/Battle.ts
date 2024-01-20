@@ -1,10 +1,12 @@
 import Rocket from "./Rocket"
 
+type Action = 'fire' | 'move' | 'rotate' | 'reRotate' | 'lase'
+
 class Battle {
   canvas: HTMLCanvasElement
   ctx: CanvasRenderingContext2D
   rocket: Rocket
-  downingActions: Array<'fire' | 'move' | 'rotate' | 'reRotate'> = []
+  downingActions: Array<Action> = []
   static time = Date.now()
 
   constructor(container: HTMLElement) {
@@ -29,13 +31,13 @@ class Battle {
     Battle.time = Date.now()
   }
 
-  addAction(action: 'fire' | 'move' | 'rotate' | 'reRotate') {
+  addAction(action: Action) {
     if (!this.downingActions.includes(action)) {
       this.downingActions.push(action)
     }
   }
 
-  removeAction(action: 'fire' | 'move' | 'rotate' | 'reRotate') {
+  removeAction(action: Action) {
     const index = this.downingActions.indexOf(action)
     if (index > -1) {
       this.downingActions.splice(index, 1)
@@ -44,7 +46,7 @@ class Battle {
 
   keydownHandler(e: KeyboardEvent) {
     const key = e.key
-    if (['ArrowUp', 'w', 'W', 'ArrowLeft', 'a', 'A', 'ArrowRight', 'd', 'D', ' '].includes(key)) {
+    if (['ArrowUp', 'w', 'W', 'ArrowLeft', 'a', 'A', 'ArrowRight', 'd', 'D', ' ', 'c', 'C'].includes(key)) {
       switch (key) {
         case 'ArrowUp':
         case 'w':
@@ -63,6 +65,9 @@ class Battle {
           break
         case ' ':
           this.addAction('fire')
+        case 'c':
+        case 'C':
+          this.addAction('lase')
           break
       }
       e.preventDefault()
@@ -90,6 +95,10 @@ class Battle {
           break
         case ' ':
           this.removeAction('fire')
+          break
+        case 'c':
+        case 'C':
+          this.removeAction('lase')
           break
       }
       e.preventDefault()
@@ -123,6 +132,9 @@ class Battle {
       switch (action) {
         case 'fire':
           this.rocket.fire()
+          break
+        case 'lase':
+          this.rocket.lase()
           break
         case 'rotate':
           this.rocket.rotate(this.rocket.degSpeed)

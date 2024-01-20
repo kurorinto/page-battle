@@ -1,8 +1,8 @@
+import throttle from 'lodash/throttle'
 import Battle from "./Battle"
 import BattleObject from "./BattleObject"
 import Bullet from "./Bullet"
 import Point from "./Point"
-import throttle from 'lodash/throttle'
 
 class Rocket extends BattleObject {
   /** 绘制线条 */
@@ -12,7 +12,7 @@ class Rocket extends BattleObject {
   /** 填充色 */
   bg = '#ffffff'
   /** 朝向角度 */
-  deg: number
+  angle: number
   /** 每秒加速度 */
   accelerated = 0
   acceleratedX = 0
@@ -26,16 +26,18 @@ class Rocket extends BattleObject {
   degSpeed = 5
   /** 子弹 */
   bullets: Bullet[] = []
+  /** 子弹半径 */
+  bulletRadius = 5
   /** 子弹速度 */
   bulletSpeed = 15
   /** 减速度 */
   deceleratedX = 0
   deceleratedY = 0
 
-  constructor({ x, y, w, h, deg = 0 }: { x: number; y: number; w: number; h: number; deg?: number }) {
+  constructor({ x, y, w, h, angle = 0 }: { x: number; y: number; w: number; h: number; angle?: number }) {
     super({ x, y, w, h })
 
-    this.deg = deg
+    this.angle = angle
     this.lines = [
       [
         new Point(x - w / 2, y - h / 2),
@@ -49,15 +51,15 @@ class Rocket extends BattleObject {
         new Point(x, y + h / 2),
       ],
     ]
-    this.rotate(deg)
+    this.rotate(angle)
     this.fire = throttle(this.fire.bind(this), 100, { trailing: false });
   }
 
   draw(ctx: CanvasRenderingContext2D) {
     const deltaSecond = (Date.now() - Battle.time) / 1000
     // 加速度分量
-    this.acceleratedX = -this.accelerated * Math.sin((this.deg * Math.PI) / 180)
-    this.acceleratedY = this.accelerated * Math.cos((this.deg * Math.PI) / 180)
+    this.acceleratedX = -this.accelerated * Math.sin((this.angle * Math.PI) / 180)
+    this.acceleratedY = this.accelerated * Math.cos((this.angle * Math.PI) / 180)
     // 减速度分量
     this.deceleratedX = this.getDecelerated(this.speedX)
     this.deceleratedY = this.getDecelerated(this.speedY)
@@ -104,14 +106,14 @@ class Rocket extends BattleObject {
     return -speed * 2
   }
 
-  rotate(deg: number) {
+  rotate(angle: number) {
     this.lines = this.lines.map((line) => {
       return line.map((point) => {
-        return Rocket.rotatePoint(point, new Point(this.x, this.y), deg)
+        return Rocket.rotatePoint(point, new Point(this.x, this.y), angle)
       })
     })
     // 保存当前角度
-    this.deg += deg
+    this.angle += angle
   }
 
   move(deltaX: number, deltaY: number) {
@@ -162,11 +164,13 @@ class Rocket extends BattleObject {
   }
 
   fire() {
-    const w = 5
-    const h = 5
-    const { x, y } = Rocket.movePointFromAngle(new Point(this.x, this.y), this.deg, this.w / 2 + w / 2);
+    const { x, y } = Rocket.movePointFromAngle(new Point(this.x, this.y), this.angle, this.w / 2 + this.bulletRadius / 2);
 
-    this.bullets.push(new Bullet({ x, y, deg: this.deg, w, h, speed: this.bulletSpeed }));
+    this.bullets.push(new Bullet({ x, y, angle: this.angle, r: this.bulletRadius, speed: this.bulletSpeed }));
+  }
+
+  lase() {
+
   }
 }
 
