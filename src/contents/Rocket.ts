@@ -92,7 +92,6 @@ class Rocket extends BattleObject {
     // 渲染子弹
     this.bullets.forEach((bullet) => {
       if (bullet.existed) {
-        bullet.move(this.bulletSpeed)
         bullet.draw(ctx)
       }
       if (bullet.firework) {
@@ -167,7 +166,7 @@ class Rocket extends BattleObject {
     const h = 5
     const { x, y } = Rocket.movePointFromAngle(new Point(this.x, this.y), this.deg, this.w / 2 + w / 2);
 
-    this.bullets.push(new Bullet({ x, y, deg: this.deg, w, h }));
+    this.bullets.push(new Bullet({ x, y, deg: this.deg, w, h, speed: this.bulletSpeed }));
   }
 }
 

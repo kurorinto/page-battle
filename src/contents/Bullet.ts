@@ -1,5 +1,6 @@
 import BattleObject from "./BattleObject";
 import Firework from "./Firework";
+import type Point from "./Point";
 
 
 class Bullet extends BattleObject {
@@ -9,11 +10,14 @@ class Bullet extends BattleObject {
   existed = true
   /** 击中rect */
   firework: Firework
+  /** 速度 */
+  speed: number
 
-  constructor({ x, y, w = 10, h = 10, deg }: { x: number; y: number; w?: number; h?: number; deg: number }) {
+  constructor({ x, y, w = 10, h = 10, deg, speed }: { x: number; y: number; w?: number; h?: number; deg: number; speed: number }) {
     super({ x, y, w, h })
     this.deg = deg
     this.existed = true
+    this.speed = speed
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -25,32 +29,49 @@ class Bullet extends BattleObject {
     ctx.closePath()
     ctx.fill()
     ctx.restore()
+    this.move(this.speed)
   }
 
   move(delta: number) {
-    ({ x: this.x, y: this.y } = Bullet.movePointFromAngle({ x: this.x, y: this.y }, this.deg, delta))
-    this.existed = Bullet.boundaryLimit({ x: this.x, y: this.y })
-    this.murderElement()
+    const hitPoint = this.murderElement();
+    if (hitPoint) {
+      this.hit(hitPoint)
+    } else {
+      ({ x: this.x, y: this.y } = Bullet.movePointFromAngle({ x: this.x, y: this.y }, this.deg, delta))
+      this.existed = Bullet.boundaryLimit({ x: this.x, y: this.y })
+    }
   }
 
-  hit() {
+  hit(point: Point) {
     // 子弹消失
     this.existed = false
     // 创建击中焰火
-    const { x, y, w, h } = this
+    const { x, y } = point
+    const { w, h } = this
     this.firework = new Firework({ x, y, w, h })
   }
 
   murderElement() {
-    const el = this.getElementFromPoint()
-    if (el) {
-      this.hit()
+    // 由于子弹每帧往前移动speed距离，可能会穿过一些小元素，因此需要判断子弹是否穿过了元素
+    // 如果下一帧的移动规矩会跟元素交叉，就消除该元素，并把子弹位置设置为交叉点
+    const deltas = BattleObject.getNumbersWithInterval(0, this.speed, 1)
+    const trackPoints = deltas.map(delta => Bullet.movePointFromAngle({ x: this.x, y: this.y }, this.deg, delta))
+    console.log(trackPoints)
+
+    let el: HTMLElement | null
+    const hitPoint = trackPoints.find(point => {
+      el = this.getElementFromPoint(point)
+      return Boolean(el)
+    })
+    if (el && hitPoint) {
+      this.hit(hitPoint)
       el.remove()
+      return hitPoint
     }
   }
 
-  getElementFromPoint() {
-    let el = document.elementFromPoint(this.x, this.y)
+  getElementFromPoint(point: Point) {
+    let el = document.elementFromPoint(point.x, point.y)
     if (!el) {
       return null
     }
