@@ -116,13 +116,50 @@ class Rocket extends BattleObject {
   }
 
   move(deltaX: number, deltaY: number) {
-    this.lines = this.lines.map((line) => {
-      return line.map((point) => {
-        return new Point(point.x + deltaX, point.y + deltaY)
-      })
-    });
     // 保存当前位置
     ({ x: this.x, y: this.y } = new Point(this.x + deltaX, this.y + deltaY))
+    // 边界检测
+    const isOut = this.lines.every(line => {
+      return line.every(point => {
+        return point.x > window.innerWidth || point.x < 0 || point.y > window.innerHeight || point.y < 0
+      })
+    })
+    // 移动所有点
+    this.lines = this.lines.map((line) => {
+      return line.map((point) => {
+        const newPoint = new Point(point.x + deltaX, point.y + deltaY)
+        if (isOut) {
+          if (newPoint.x > window.innerWidth) {
+            newPoint.x = newPoint.x - window.innerWidth
+          }
+          if (newPoint.x < 0) {
+            newPoint.x = newPoint.x + window.innerWidth
+          }
+          if (newPoint.y > window.innerHeight) {
+            newPoint.y = newPoint.y - window.innerHeight
+          }
+          if (newPoint.y < 0) {
+            newPoint.y = newPoint.y + window.innerHeight
+          }
+        }
+        return newPoint
+      })
+    });
+    // 移动中心点
+    if (isOut) {
+      if (this.x > window.innerWidth) {
+        this.x = this.x - window.innerWidth
+      }
+      if (this.x < 0) {
+        this.x = this.x + window.innerWidth
+      }
+      if (this.y > window.innerHeight) {
+        this.y = this.y - window.innerHeight
+      }
+      if (this.y < 0) {
+        this.y = this.y + window.innerHeight
+      }
+    }
   }
 
   fire() {
