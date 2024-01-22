@@ -124,15 +124,15 @@ class Rocket extends BattleObject {
     // 渲染激光
     if (this.laser.lasing) {
       this.laser.draw(ctx)
-      if (this.laser.fireworks.length) {
-        this.laser.fireworks = this.laser.fireworks.filter(firework => {
-          return firework.blastLines.some(blastLine => blastLine.existed)
-        })
-        console.log(this.laser.fireworks.length)
-        this.laser.fireworks.forEach((firework) => {
-          firework.draw(ctx)
-        })
-      }
+    }
+    if (this.laser.fireworks.length) {
+      // 过滤已经消失的焰火
+      this.laser.fireworks = this.laser.fireworks.filter(firework => {
+        return firework.blastLines.some(blastLine => blastLine.existed)
+      })
+      this.laser.fireworks.forEach((firework) => {
+        firework.draw(ctx)
+      })
     }
   }
 
