@@ -59,7 +59,7 @@ class Bullet extends BattleObject {
 
     let el: HTMLElement | null
     const hitPoint = trackPoints.find(point => {
-      el = this.getElementFromPoint(point)
+      el = BattleObject.getElementFromPoint(point)
       return Boolean(el)
     })
     if (el && hitPoint) {
@@ -67,24 +67,6 @@ class Bullet extends BattleObject {
       el.remove()
       return hitPoint
     }
-  }
-
-  getElementFromPoint(point: Point) {
-    let el = document.elementFromPoint(point.x, point.y)
-    if (!el) {
-      return null
-    }
-    if (el.childElementCount) {
-      return null
-    }
-    if (el.nodeType === Node.TEXT_NODE) {
-      el = el.parentElement
-    }
-    // 只消除元素节点
-    if (el.nodeType !== Node.ELEMENT_NODE) {
-      return null
-    }
-    return el as HTMLElement
   }
 }
 

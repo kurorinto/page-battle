@@ -1,4 +1,5 @@
 import BattleObject from "./BattleObject";
+import Firework from "./Firework";
 import Line from "./Line";
 import Point from "./Point";
 
@@ -9,6 +10,7 @@ class Laser {
   lasing = false
   vertexes: Point[]
   radius: number
+  fireworks: Firework[] = []
 
   /** 激光起点 */
   set start(start: Point) {
@@ -56,6 +58,20 @@ class Laser {
     ctx.closePath()
     ctx.fill()
     ctx.restore()
+
+    this.hit()
+  }
+
+  hit() {
+    const allPoints = BattleObject.getPolygonPoints(this.vertexes)
+    allPoints.forEach(point => {
+      const el = BattleObject.getElementFromPoint(point)
+      if (el) {
+        el.remove()
+        // 创建击中焰火
+        this.fireworks.push(new Firework({ x: point.x, y: point.y, w: 10, h: 10 }))
+      }
+    })
   }
 
   setLasing(lasing: boolean) {

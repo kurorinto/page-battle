@@ -81,6 +81,70 @@ class BattleObject {
   static calculateDistance({ x: x1, y: y1 }: Point, { x: x2, y: y2 }: Point) {
     return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
   }
+
+  /** 获取多边形内的所有坐标 */
+  static getPolygonPoints(points: Point[]): Point[] {
+    // 将传入的点按照 x 坐标进行排序
+    points.sort((a, b) => a.x - b.x);
+
+    // 找到最左边和最右边的点
+    const leftPoint = points[0];
+    const rightPoint = points[points.length - 1];
+
+    // 计算多边形的边界框
+    const top = Math.min(...points.map(p => p.y));
+    const bottom = Math.max(...points.map(p => p.y));
+
+    // 遍历边界框内的所有点
+    const result: Point[] = [];
+    for (let y = top; y <= bottom; y++) {
+      for (let x = leftPoint.x; x <= rightPoint.x; x++) {
+        if (BattleObject.isPointInsidePolygon({ x, y }, points)) {
+          result.push({ x, y });
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /** 判断一个点是否在多边形内部 */
+  static isPointInsidePolygon(point: Point, polygon: Point[]) {
+    let inside = false;
+    const x = point.x;
+    const y = point.y;
+
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const xi = polygon[i].x;
+      const yi = polygon[i].y;
+      const xj = polygon[j].x;
+      const yj = polygon[j].y;
+
+      const intersect = ((yi > y) !== (yj > y)) &&
+        (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+      if (intersect) inside = !inside;
+    }
+
+    return inside;
+  }
+
+  static getElementFromPoint(point: Point) {
+    let el = document.elementFromPoint(point.x, point.y)
+    if (!el) {
+      return null
+    }
+    if (el.childElementCount) {
+      return null
+    }
+    if (el.nodeType === Node.TEXT_NODE) {
+      el = el.parentElement
+    }
+    // 只消除元素节点
+    if (el.nodeType !== Node.ELEMENT_NODE) {
+      return null
+    }
+    return el as HTMLElement
+  }
 }
 
 export default BattleObject
