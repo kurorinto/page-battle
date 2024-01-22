@@ -66,10 +66,10 @@ class Battle {
         case ' ':
           this.addAction('fire')
           break
-        case 'c':
-        case 'C':
-          this.addAction('lase')
-          break
+        // case 'c':
+        // case 'C':
+        //   this.addAction('lase')
+        //   break
       }
       e.preventDefault()
       e.stopPropagation()
@@ -98,10 +98,10 @@ class Battle {
         case ' ':
           this.removeAction('fire')
           break
-        case 'c':
-        case 'C':
-          this.removeAction('lase')
-          break
+        // case 'c':
+        // case 'C':
+        //   this.removeAction('lase')
+        //   break
       }
       e.preventDefault()
       e.stopPropagation()
