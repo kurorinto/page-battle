@@ -65,6 +65,7 @@ class Battle {
           break
         case ' ':
           this.addAction('fire')
+          break
         case 'c':
         case 'C':
           this.addAction('lase')

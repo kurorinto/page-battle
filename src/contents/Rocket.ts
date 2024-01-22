@@ -39,10 +39,15 @@ class Rocket extends BattleObject {
   /** 激光 */
   laser: Laser
   /** 激光半径 */
-  laserRadius = 5
+  laserRadius = 1
 
   /** 朝向角度 */
   set angle(angle: number) {
+    // 激光跟随
+    if (this.laser) {
+      this.laser.start = Rocket.movePointFromAngle(new Point(this.x, this.y), angle, this.w / 2 + this.bulletRadius / 2)
+      this.laser.angle = angle
+    }
     this._angle = angle
   }
   get angle() {
@@ -118,7 +123,6 @@ class Rocket extends BattleObject {
     })
     // 渲染激光
     if (this.laser.lasing) {
-      this.laser.start = new Point(this.x, this.y)
       this.laser.draw(ctx)
     }
   }
@@ -191,6 +195,8 @@ class Rocket extends BattleObject {
         this.y = this.y + window.innerHeight
       }
     }
+    // 移动激光
+    this.laser.start = Rocket.movePointFromAngle(new Point(this.x, this.y), this.angle, this.w / 2 + this.bulletRadius / 2)
   }
 
   fire() {
@@ -200,7 +206,7 @@ class Rocket extends BattleObject {
   }
 
   createLase() {
-    const laserStart = Rocket.movePointFromAngle(new Point(this.x, this.y), this.angle, this.w / 2 + this.bulletRadius / 2);
+    const laserStart = Rocket.movePointFromAngle(new Point(this.x, this.y), this.angle, this.w / 2 + this.bulletRadius / 2)
     this.laser = new Laser(laserStart, this.angle, this.laserRadius);
   }
 }
