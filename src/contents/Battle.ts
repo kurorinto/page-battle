@@ -71,12 +71,13 @@ class Battle {
           break
       }
       e.preventDefault()
+      e.stopPropagation()
     }
   }
 
   keyupHandler(e: KeyboardEvent) {
     const key = e.key
-    if (['ArrowUp', 'w', 'W', 'ArrowLeft', 'a', 'A', 'ArrowRight', 'd', 'D', ' '].includes(key)) {
+    if (['ArrowUp', 'w', 'W', 'ArrowLeft', 'a', 'A', 'ArrowRight', 'd', 'D', ' ', 'c', 'C'].includes(key)) {
       switch (key) {
         case 'ArrowUp':
         case 'w':
@@ -102,6 +103,7 @@ class Battle {
           break
       }
       e.preventDefault()
+      e.stopPropagation()
     }
   }
 
@@ -133,9 +135,6 @@ class Battle {
         case 'fire':
           this.rocket.fire()
           break
-        case 'lase':
-          this.rocket.lase()
-          break
         case 'rotate':
           this.rocket.rotate(this.rocket.degSpeed)
           break
@@ -148,6 +147,11 @@ class Battle {
       this.rocket.accelerated = 20
     } else {
       this.rocket.accelerated = 0
+    }
+    if (this.downingActions.includes('lase')) {
+      this.rocket.laser.setLasing(true)
+    } else {
+      this.rocket.laser.setLasing(false)
     }
     // 渲染火箭
     this.rocket.draw(this.ctx)

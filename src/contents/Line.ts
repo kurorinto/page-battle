@@ -5,7 +5,7 @@ class Line {
   end: Point
   color ='#20242C'
 
-  constructor(start: Point, end: Point, color: string) {
+  constructor(start: Point, end: Point, color?: string) {
     this.start = start
     this.end = end
     this.color = color

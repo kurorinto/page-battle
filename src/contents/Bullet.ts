@@ -56,7 +56,6 @@ class Bullet extends BattleObject {
     // 如果下一帧的移动规矩会跟元素交叉，就消除该元素，并把子弹位置设置为交叉点
     const deltas = BattleObject.getNumbersWithInterval(0, this.speed, 1)
     const trackPoints = deltas.map(delta => Bullet.movePointFromAngle({ x: this.x, y: this.y }, this.angle, delta))
-    console.log(trackPoints)
 
     let el: HTMLElement | null
     const hitPoint = trackPoints.find(point => {

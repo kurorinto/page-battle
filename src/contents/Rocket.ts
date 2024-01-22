@@ -3,6 +3,7 @@ import Battle from "./Battle"
 import BattleObject from "./BattleObject"
 import Bullet from "./Bullet"
 import Point from "./Point"
+import Laser from './Laser'
 
 class Rocket extends BattleObject {
   /** 绘制线条 */
@@ -12,11 +13,14 @@ class Rocket extends BattleObject {
   /** 填充色 */
   bg = '#ffffff'
   /** 朝向角度 */
-  angle: number
+  private _angle: number
   /** 每秒加速度 */
   accelerated = 0
   acceleratedX = 0
   acceleratedY = 0
+  /** 每秒减速度 */
+  deceleratedX = 0
+  deceleratedY = 0
   /** 前进速度 */
   speedX = 0
   speedY = 0
@@ -30,9 +34,20 @@ class Rocket extends BattleObject {
   bulletRadius = 5
   /** 子弹速度 */
   bulletSpeed = 15
-  /** 减速度 */
-  deceleratedX = 0
-  deceleratedY = 0
+  /** 射速 */
+  firingRate = 100
+  /** 激光 */
+  laser: Laser
+  /** 激光半径 */
+  laserRadius = 5
+
+  /** 朝向角度 */
+  set angle(angle: number) {
+    this._angle = angle
+  }
+  get angle() {
+    return this._angle
+  }
 
   constructor({ x, y, w, h, angle = 0 }: { x: number; y: number; w: number; h: number; angle?: number }) {
     super({ x, y, w, h })
@@ -52,7 +67,8 @@ class Rocket extends BattleObject {
       ],
     ]
     this.rotate(angle)
-    this.fire = throttle(this.fire.bind(this), 100, { trailing: false });
+    this.fire = throttle(this.fire.bind(this), this.firingRate, { trailing: false });
+    this.createLase()
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -100,6 +116,11 @@ class Rocket extends BattleObject {
         bullet.firework.draw(ctx)
       }
     })
+    // 渲染激光
+    if (this.laser.lasing) {
+      this.laser.start = new Point(this.x, this.y)
+      this.laser.draw(ctx)
+    }
   }
 
   getDecelerated(speed: number) {
@@ -120,22 +141,29 @@ class Rocket extends BattleObject {
     // 保存当前位置
     ({ x: this.x, y: this.y } = new Point(this.x + deltaX, this.y + deltaY))
     // 边界检测
-    const isOut = this.lines.every(line => {
+    const isXOut = this.lines.every(line => {
       return line.every(point => {
-        return point.x > window.innerWidth || point.x < 0 || point.y > window.innerHeight || point.y < 0
+        return point.x > window.innerWidth || point.x < 0
+      })
+    })
+    const isYOut = this.lines.every(line => {
+      return line.every(point => {
+        return point.y > window.innerHeight || point.y < 0
       })
     })
     // 移动所有点
     this.lines = this.lines.map((line) => {
       return line.map((point) => {
         const newPoint = new Point(point.x + deltaX, point.y + deltaY)
-        if (isOut) {
+        if (isXOut) {
           if (newPoint.x > window.innerWidth) {
             newPoint.x = newPoint.x - window.innerWidth
           }
           if (newPoint.x < 0) {
             newPoint.x = newPoint.x + window.innerWidth
           }
+        }
+        if (isYOut) {
           if (newPoint.y > window.innerHeight) {
             newPoint.y = newPoint.y - window.innerHeight
           }
@@ -147,13 +175,15 @@ class Rocket extends BattleObject {
       })
     });
     // 移动中心点
-    if (isOut) {
+    if (isXOut) {
       if (this.x > window.innerWidth) {
         this.x = this.x - window.innerWidth
       }
       if (this.x < 0) {
         this.x = this.x + window.innerWidth
       }
+    }
+    if (isYOut) {
       if (this.y > window.innerHeight) {
         this.y = this.y - window.innerHeight
       }
@@ -169,8 +199,9 @@ class Rocket extends BattleObject {
     this.bullets.push(new Bullet({ x, y, angle: this.angle, r: this.bulletRadius, speed: this.bulletSpeed }));
   }
 
-  lase() {
-
+  createLase() {
+    const laserStart = Rocket.movePointFromAngle(new Point(this.x, this.y), this.angle, this.w / 2 + this.bulletRadius / 2);
+    this.laser = new Laser(laserStart, this.angle, this.laserRadius);
   }
 }
 
