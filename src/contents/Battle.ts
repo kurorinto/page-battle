@@ -7,6 +7,7 @@ class Battle {
   ctx: CanvasRenderingContext2D
   rocket: Rocket
   downingActions: Array<Action> = []
+  animationId: number
   static time = Date.now()
 
   constructor(container: HTMLElement) {
@@ -44,7 +45,7 @@ class Battle {
     }
   }
 
-  keydownHandler(e: KeyboardEvent) {
+  keydownHandler = (e: KeyboardEvent) => {
     const key = e.key
     if (['ArrowUp', 'w', 'W', 'ArrowLeft', 'a', 'A', 'ArrowRight', 'd', 'D', ' ', 'c', 'C'].includes(key)) {
       switch (key) {
@@ -76,7 +77,7 @@ class Battle {
     }
   }
 
-  keyupHandler(e: KeyboardEvent) {
+  keyupHandler = (e: KeyboardEvent) => {
     const key = e.key
     if (['ArrowUp', 'w', 'W', 'ArrowLeft', 'a', 'A', 'ArrowRight', 'd', 'D', ' ', 'c', 'C'].includes(key)) {
       switch (key) {
@@ -109,20 +110,20 @@ class Battle {
   }
 
   bindEvents() {
-    window.addEventListener("resize", this.resizeCanvas.bind(this))
-    window.addEventListener('keydown', this.keydownHandler.bind(this))
-    window.addEventListener('keypress', this.keydownHandler.bind(this))
-    window.addEventListener('keyup', this.keyupHandler.bind(this))
+    window.addEventListener("resize", this.resizeCanvas)
+    window.addEventListener('keydown', this.keydownHandler)
+    window.addEventListener('keypress', this.keydownHandler)
+    window.addEventListener('keyup', this.keyupHandler)
   }
 
   unbindEvents() {
-    window.removeEventListener("resize", this.resizeCanvas.bind(this))
-    window.removeEventListener('keydown', this.keydownHandler.bind(this))
-    window.removeEventListener('keypress', this.keydownHandler.bind(this))
-    window.removeEventListener('keyup', this.keyupHandler.bind(this))
+    window.removeEventListener("resize", this.resizeCanvas)
+    window.removeEventListener('keydown', this.keydownHandler)
+    window.removeEventListener('keypress', this.keydownHandler)
+    window.removeEventListener('keyup', this.keyupHandler)
   }
 
-  resizeCanvas() {
+  resizeCanvas = () => {
     this.canvas.width = window.innerWidth
     this.canvas.height = window.innerHeight
   }
@@ -160,7 +161,7 @@ class Battle {
 
   /** 动画 */
   animate() {
-    requestAnimationFrame(this.animate.bind(this))
+    this.animationId = requestAnimationFrame(this.animate.bind(this))
     this.render()
     Battle.time = Date.now()
   }
@@ -175,6 +176,7 @@ class Battle {
     this.clear()
     this.canvas.remove()
     this.unbindEvents()
+    cancelAnimationFrame(this.animationId)
   }
 }
 
