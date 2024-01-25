@@ -57,7 +57,7 @@ class Bullet extends BattleObject {
     const deltas = BattleObject.getNumbersWithInterval(0, this.speed, 1)
     const trackPoints = deltas.map(delta => Bullet.movePointFromAngle({ x: this.x, y: this.y }, this.angle, delta))
 
-    let el: HTMLElement | null
+    let el: Element | null
     const hitPoint = trackPoints.find(point => {
       el = BattleObject.getElementFromPoint(point)
       return Boolean(el)

@@ -128,22 +128,46 @@ class BattleObject {
     return inside;
   }
 
+  static checkDescendantsIsEmpty(el: Element): boolean {
+    // 遍历所有后代元素
+    for (let i = 0; i < el.children.length; i++) {
+      const child = el.children[i];
+      // 判断宽高是否与父元素相同
+      if (child.clientHeight)
+      // 判断宽度或高度是否为0
+      if (child.clientHeight === 0 || child.clientWidth === 0) {
+        if (!BattleObject.checkDescendantsIsEmpty(child)) {
+          return false; // 递归判断后代元素
+        }
+      } else {
+        return false; // 如果有一个后代元素宽度或高度不为0，则返回false
+      }
+    }
+    return true; // 所有后代元素宽度或高度都为0，则返回true
+  }
+
+
   static getElementFromPoint(point: Point) {
     let el = document.elementFromPoint(point.x, point.y)
     if (!el) {
       return null
     }
+    // 如果有子元素，递归遍历所有的后代元素，如果宽度/高度为0，获取这个元素
     if (el.childElementCount) {
-      return null
+      const isEmpty = BattleObject.checkDescendantsIsEmpty(el)
+      if (!isEmpty) {
+        return null
+      }
     }
+    // 如果节点是文本节点，获取它的父元素
     if (el.nodeType === Node.TEXT_NODE) {
       el = el.parentElement
     }
-    // 只消除元素节点
+    // 只获取元素节点
     if (el.nodeType !== Node.ELEMENT_NODE) {
       return null
     }
-    return el as HTMLElement
+    return el
   }
 }
 
