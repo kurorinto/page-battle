@@ -8,7 +8,7 @@ class Bullet extends BattleObject {
   angle: number
   /** 是否存在 */
   existed = true
-  /** 击中rect */
+  /** 击中火焰 */
   firework: Firework
   /** 速度 */
   speed: number
