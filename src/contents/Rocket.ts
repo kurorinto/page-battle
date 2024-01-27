@@ -40,6 +40,8 @@ class Rocket extends BattleObject {
   laser: Laser
   /** 激光半径 */
   laserRadius = 1
+  /** 枪口位置 */
+  muzzle: Point
 
   /** 朝向角度 */
   set angle(angle: number) {
@@ -71,27 +73,16 @@ class Rocket extends BattleObject {
         new Point(x, y + h / 2),
       ],
     ]
+    // 初始化枪口位置
+    this.getMuzzlePosition()
     this.rotate(angle)
     this.fire = throttle(this.fire.bind(this), this.firingRate, { trailing: false });
     this.createLase()
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    const deltaSecond = (Date.now() - Battle.time) / 1000
-    // 加速度分量
-    this.acceleratedX = -this.accelerated * Math.sin((this.angle * Math.PI) / 180)
-    this.acceleratedY = this.accelerated * Math.cos((this.angle * Math.PI) / 180)
-    // 减速度分量
-    this.deceleratedX = this.getDecelerated(this.speedX)
-    this.deceleratedY = this.getDecelerated(this.speedY)
-    // 速度变化分量
-    const deltaVX = (this.acceleratedX + this.deceleratedX) * deltaSecond
-    const deltaVY = (this.acceleratedY + this.deceleratedY) * deltaSecond
-    // 速度分量
-    this.speedX = Math.max(Math.min(this.speedX + deltaVX, this.maxSpeed), -this.maxSpeed)
-    this.speedY = Math.max(Math.min(this.speedY + deltaVY, this.maxSpeed), -this.maxSpeed)
     // 移动火箭
-    this.move(this.speedX, this.speedY)
+    this.move()
     // 渲染火箭
     ctx.save()
     ctx.strokeStyle = this.color
@@ -110,6 +101,7 @@ class Rocket extends BattleObject {
     ctx.fill()
     ctx.stroke()
     ctx.restore()
+
     // 过滤 出边界消失和焰火消失的子弹
     this.bullets = this.bullets.filter(bullet => bullet.firework ? bullet.firework.blastLines.every(line => line.existed) : bullet.existed)
     // 渲染子弹
@@ -150,9 +142,23 @@ class Rocket extends BattleObject {
     this.angle += angle
   }
 
-  move(deltaX: number, deltaY: number) {
+  move() {
+    const deltaSecond = (Date.now() - Battle.time) / 1000
+    // 加速度分量
+    this.acceleratedX = -this.accelerated * Math.sin((this.angle * Math.PI) / 180)
+    this.acceleratedY = this.accelerated * Math.cos((this.angle * Math.PI) / 180)
+    // 减速度分量
+    this.deceleratedX = this.getDecelerated(this.speedX)
+    this.deceleratedY = this.getDecelerated(this.speedY)
+    // 速度变化分量
+    const deltaVX = (this.acceleratedX + this.deceleratedX) * deltaSecond
+    const deltaVY = (this.acceleratedY + this.deceleratedY) * deltaSecond
+    // 速度分量
+    this.speedX = Math.max(Math.min(this.speedX + deltaVX, this.maxSpeed), -this.maxSpeed)
+    this.speedY = Math.max(Math.min(this.speedY + deltaVY, this.maxSpeed), -this.maxSpeed);
     // 保存当前位置
-    ({ x: this.x, y: this.y } = new Point(this.x + deltaX, this.y + deltaY))
+    this.x += this.speedX
+    this.y += this.speedY
     // 边界检测
     const isXOut = this.lines.every(line => {
       return line.every(point => {
@@ -167,7 +173,7 @@ class Rocket extends BattleObject {
     // 移动所有点
     this.lines = this.lines.map((line) => {
       return line.map((point) => {
-        const newPoint = new Point(point.x + deltaX, point.y + deltaY)
+        const newPoint = new Point(point.x + this.speedX, point.y + this.speedY)
         if (isXOut) {
           if (newPoint.x > window.innerWidth) {
             newPoint.x = newPoint.x - window.innerWidth
@@ -187,7 +193,7 @@ class Rocket extends BattleObject {
         return newPoint
       })
     });
-    // 移动中心点
+    // 超出移动中心点
     if (isXOut) {
       if (this.x > window.innerWidth) {
         this.x = this.x - window.innerWidth
@@ -204,19 +210,24 @@ class Rocket extends BattleObject {
         this.y = this.y + window.innerHeight
       }
     }
+    this.getMuzzlePosition()
     // 移动激光
-    this.laser.start = Rocket.movePointFromAngle(new Point(this.x, this.y), this.angle, this.w / 2 + this.bulletRadius / 2)
+    this.laser.start = this.muzzle
   }
 
   fire() {
-    const { x, y } = Rocket.movePointFromAngle(new Point(this.x, this.y), this.angle, this.w / 2 + this.bulletRadius / 2);
-
+    const { x, y } = this.muzzle;
     this.bullets.push(new Bullet({ x, y, angle: this.angle, r: this.bulletRadius, speed: this.bulletSpeed }));
   }
 
   createLase() {
-    const laserStart = Rocket.movePointFromAngle(new Point(this.x, this.y), this.angle, this.w / 2 + this.bulletRadius / 2)
+    const laserStart = this.muzzle
     this.laser = new Laser(laserStart, this.angle, this.laserRadius);
+  }
+
+  // 计算枪口位置
+  getMuzzlePosition() {
+    this.muzzle = Rocket.movePointFromAngle(new Point(this.x, this.y), this.angle, this.w / 2 + this.bulletRadius / 2)
   }
 }
 
