@@ -2,8 +2,9 @@ import { useEffect, useState } from "react"
 
 import { Storage } from "@plasmohq/storage"
 
-import "./index.scss"
 import { Button } from "./components/ui/button"
+
+import "./index.scss"
 
 const storage = new Storage()
 
@@ -40,9 +41,17 @@ const Popup = () => {
   }, [started])
 
   return (
-    <div>
+    <div className="w-[360px] p-[8px] flex flex-col gap-y-[8px] bg-[#fff]">
+      <div className="text-[20px]">
+        <div>Page Battle</div>
+        <div className="text-[14px]">在页面上开始你的飞机大战吧！</div>
+      </div>
+      <div className="text-gray-500">
+        操作说明：W(或↑)前进，A(或←)左转，D(或→)右转。空格发射
+      </div>
       {loaded && (
         <Button
+          variant={started ? "destructive" : "default"}
           onClick={async () => {
             setStarted(!started)
 
@@ -54,7 +63,7 @@ const Popup = () => {
               chrome.tabs.sendMessage(currentTab.id, JSON.stringify(message))
             }
           }}>
-          {started ? "Stop" : "Play"}
+          {started ? "Stop" : "Start"}
         </Button>
       )}
     </div>

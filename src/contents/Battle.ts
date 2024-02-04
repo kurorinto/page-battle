@@ -47,7 +47,7 @@ class Battle {
 
   keydownHandler = (e: KeyboardEvent) => {
     const key = e.key
-    if (['ArrowUp', 'w', 'W', 'ArrowLeft', 'a', 'A', 'ArrowRight', 'd', 'D', ' ', 'c', 'C'].includes(key)) {
+    if (['ArrowUp', 'w', 'W', 'ArrowLeft', 'a', 'A', 'ArrowRight', 'd', 'D', ' '].includes(key)) {
       switch (key) {
         case 'ArrowUp':
         case 'w':
@@ -79,7 +79,7 @@ class Battle {
 
   keyupHandler = (e: KeyboardEvent) => {
     const key = e.key
-    if (['ArrowUp', 'w', 'W', 'ArrowLeft', 'a', 'A', 'ArrowRight', 'd', 'D', ' ', 'c', 'C'].includes(key)) {
+    if (['ArrowUp', 'w', 'W', 'ArrowLeft', 'a', 'A', 'ArrowRight', 'd', 'D', ' '].includes(key)) {
       switch (key) {
         case 'ArrowUp':
         case 'w':
