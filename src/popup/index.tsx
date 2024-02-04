@@ -2,6 +2,9 @@ import { useEffect, useState } from "react"
 
 import { Storage } from "@plasmohq/storage"
 
+import "./index.scss"
+import { Button } from "./components/ui/button"
+
 const storage = new Storage()
 
 export interface Message {
@@ -17,7 +20,7 @@ const getCurrentTabId = async (): Promise<chrome.tabs.Tab | undefined> => {
 }
 
 const Popup = () => {
-  const [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(false)
   const [started, setStarted] = useState(false)
 
   const init = async () => {
@@ -38,20 +41,22 @@ const Popup = () => {
 
   return (
     <div>
-      {loaded && <button
-        onClick={async () => {
-          setStarted(!started)
+      {loaded && (
+        <Button
+          onClick={async () => {
+            setStarted(!started)
 
-          const currentTab = await getCurrentTabId()
-          if (currentTab) {
-            const message: Message = {
-              started: !started
+            const currentTab = await getCurrentTabId()
+            if (currentTab) {
+              const message: Message = {
+                started: !started
+              }
+              chrome.tabs.sendMessage(currentTab.id, JSON.stringify(message))
             }
-            chrome.tabs.sendMessage(currentTab.id, JSON.stringify(message))
-          }
-        }}>
-        {started ? "Stop" : "Play"}
-      </button>}
+          }}>
+          {started ? "Stop" : "Play"}
+        </Button>
+      )}
     </div>
   )
 }
