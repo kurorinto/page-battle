@@ -51,7 +51,7 @@ const Popup = () => {
         <div>Page Battle</div>
         <div className="text-[14px]">在页面上开始你的飞机大战吧！</div>
         <div className="text-gray-500 text-[12px]">
-          操作说明：W(或↑)前进，A(或←)左转，D(或→)右转。空格发射
+          操作说明：W(或↑)前进，A(或←)左转，D(或→)右转，空格发射
         </div>
       </div>
       <div className="flex flex-col gap-y-[4px]">
