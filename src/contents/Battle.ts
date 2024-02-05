@@ -2,6 +2,23 @@ import Rocket from "./Rocket"
 
 type Action = 'fire' | 'move' | 'rotate' | 'reRotate' | 'lase'
 
+interface BattleOptions {
+  /** fps上限 */
+  maxFps?: number
+  /** 初始飞机加速度 */
+  defaultRocketAccelerated?: number
+  /** 初始飞机最大速度 */
+  defaultRocketMaxSpeed?: number
+  /** 初始飞机飞行阻力系数 */
+  defaultRocketDeceleratedCoefficient?: number
+  /** 初始飞机转向灵敏度 */
+  defaultRocketDegSpeed?: number
+  /** 初始子弹速度 */
+  defaultBulletSpeed?: number
+  /** 初始子弹射速 */
+  defaultFiringRate?: number
+}
+
 class Battle {
   canvas: HTMLCanvasElement
   ctx: CanvasRenderingContext2D
@@ -10,7 +27,9 @@ class Battle {
   animationId: number
   static time = Date.now()
 
-  constructor(container: HTMLElement) {
+  constructor(container: HTMLElement, options: BattleOptions = {
+    maxFps: 60
+  }) {
     // 创建画布
     this.canvas = document.createElement('canvas')
     container.appendChild(this.canvas)

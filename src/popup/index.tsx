@@ -6,7 +6,7 @@ import { Button } from "./components/ui/button"
 
 import "./index.scss"
 
-import { Slider } from "./components/ui/slider"
+import GameParamSlider from "./CustomComponents/GameParamSlider"
 
 const storage = new Storage()
 
@@ -25,9 +25,19 @@ const getCurrentTabId = async (): Promise<chrome.tabs.Tab | undefined> => {
 const Popup = () => {
   const [loaded, setLoaded] = useState(false)
   const [started, setStarted] = useState(false)
-  const [rocketSpeed, setRocketSpeed] = useState(5)
-  const [bulletSpeed, setBulletSpeed] = useState(15);
-  const [firingRate, setFiringRate] = useState(10);
+  const [maxFps, setMaxFps] = useState(60);
+  /** 飞机加速度 */
+  const [rocketAccelerated, setRocketAccelerated] = useState(5)
+  /** 飞机转向灵敏度 */
+  const [rocketDegSpeed, setRocketDegSpeed] = useState(5)
+  /** 飞机飞行阻力系数 */
+  const [rocketDeceleratedCoefficient, setRocketDeceleratedCoefficient] = useState(5)
+  /** 飞机最大速度 */
+  const [rocketMaxSpeed, setRocketMaxSpeed] = useState(10)
+  /** 子弹速度 */
+  const [bulletSpeed, setBulletSpeed] = useState(15)
+  /** 子弹射速 */
+  const [firingRate, setFiringRate] = useState(10)
 
   const init = async () => {
     const storageStarted = JSON.parse(
@@ -54,46 +64,71 @@ const Popup = () => {
           操作说明：W(或↑)前进，A(或←)左转，D(或→)右转，空格发射
         </div>
       </div>
-      <div className="flex flex-col gap-y-[4px]">
-        <div className="flex items-center">
-          <div className="break-all text-nowrap">飞机速度：</div>
-          <div className="w-[30px] mr-[4px]">({rocketSpeed})</div>
-          <Slider
-            className="flex-1"
-            value={[rocketSpeed]}
-            max={100}
-            step={1}
-            onValueChange={([val]) => {
-              setRocketSpeed(val)
-            }}
-          />
-        </div>
-        <div className="flex items-center">
-          <div className="break-all text-nowrap">子弹速度：</div>
-          <div className="w-[30px] mr-[4px]">({bulletSpeed})</div>
-          <Slider
-            className="flex-1"
-            value={[bulletSpeed]}
-            max={100}
-            step={1}
-            onValueChange={([val]) => {
-              setBulletSpeed(val)
-            }}
-          />
-        </div>
-        <div className="flex items-center">
-          <div className="break-all text-nowrap">子弹射速：</div>
-          <div className="w-[30px] mr-[4px]">({firingRate})</div>
-          <Slider
-            className="flex-1"
-            value={[firingRate]}
-            max={100}
-            step={1}
-            onValueChange={([val]) => {
-              setFiringRate(val)
-            }}
-          />
-        </div>
+      <div className="flex flex-col gap-y-[12px]">
+        <GameParamSlider
+          label="最大帧率"
+          value={[maxFps]}
+          max={60}
+          min={10}
+          step={1}
+          onValueChange={([val]) => {
+            setMaxFps(val)
+          }}
+        />
+        <GameParamSlider
+          label="飞机加速度"
+          value={[rocketAccelerated]}
+          max={100}
+          step={1}
+          onValueChange={([val]) => {
+            setRocketAccelerated(val)
+          }}
+        />
+        <GameParamSlider
+          label="飞机最大速度"
+          value={[rocketMaxSpeed]}
+          max={100}
+          step={1}
+          onValueChange={([val]) => {
+            setRocketMaxSpeed(val)
+          }}
+        />
+        <GameParamSlider
+          label="飞行阻力系数"
+          value={[rocketDeceleratedCoefficient]}
+          max={100}
+          step={1}
+          onValueChange={([val]) => {
+            setRocketDeceleratedCoefficient(val)
+          }}
+        />
+        <GameParamSlider
+          label="转向灵敏度"
+          value={[rocketDegSpeed]}
+          max={100}
+          step={1}
+          onValueChange={([val]) => {
+            setRocketDegSpeed(val)
+          }}
+        />
+        <GameParamSlider
+          label="子弹速度"
+          value={[bulletSpeed]}
+          max={100}
+          step={1}
+          onValueChange={([val]) => {
+            setBulletSpeed(val)
+          }}
+        />
+        <GameParamSlider
+          label="子弹射速"
+          value={[firingRate]}
+          max={100}
+          step={1}
+          onValueChange={([val]) => {
+            setFiringRate(val)
+          }}
+        />
       </div>
       {loaded && (
         <Button
