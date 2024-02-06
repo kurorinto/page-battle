@@ -48,6 +48,7 @@ const MyPopup: FC<PlasmoCSUIProps> = ({ anchor }) => {
   useEffect(() => {
     init()
     chrome.runtime.onMessage.addListener(messageHandler)
+
     return () => {
       chrome.runtime.onMessage.removeListener(messageHandler)
     }

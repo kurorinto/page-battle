@@ -2,34 +2,17 @@ import Rocket from "./Rocket"
 
 type Action = 'fire' | 'move' | 'rotate' | 'reRotate' | 'lase'
 
-interface BattleOptions {
-  /** fps上限 */
-  maxFps?: number
-  /** 初始飞机加速度 */
-  defaultRocketAccelerated?: number
-  /** 初始飞机最大速度 */
-  defaultRocketMaxSpeed?: number
-  /** 初始飞机飞行阻力系数 */
-  defaultRocketDeceleratedCoefficient?: number
-  /** 初始飞机转向灵敏度 */
-  defaultRocketDegSpeed?: number
-  /** 初始子弹速度 */
-  defaultBulletSpeed?: number
-  /** 初始子弹射速 */
-  defaultFiringRate?: number
-}
-
 class Battle {
   canvas: HTMLCanvasElement
   ctx: CanvasRenderingContext2D
   rocket: Rocket
   downingActions: Array<Action> = []
   animationId: number
-  static time = Date.now()
+  maxFps = 60
+  static fps = Infinity
+  static time = performance.now()
 
-  constructor(container: HTMLElement, options: BattleOptions = {
-    maxFps: 60
-  }) {
+  constructor(container: HTMLElement) {
     // 创建画布
     this.canvas = document.createElement('canvas')
     container.appendChild(this.canvas)
@@ -46,9 +29,7 @@ class Battle {
     this.resizeCanvas()
     this.bindEvents()
     // 游戏开始
-    this.animate()
-    // 开始计时
-    Battle.time = Date.now()
+    this.animationId = requestAnimationFrame(this.animate.bind(this))
   }
 
   addAction(action: Action) {
@@ -165,7 +146,7 @@ class Battle {
       }
     })
     if (this.downingActions.includes('move')) {
-      this.rocket.accelerated = 20
+      this.rocket.accelerated = 1000
     } else {
       this.rocket.accelerated = 0
     }
@@ -179,10 +160,17 @@ class Battle {
   }
 
   /** 动画 */
-  animate() {
-    this.animationId = requestAnimationFrame(this.animate.bind(this))
-    this.render()
-    Battle.time = Date.now()
+  animate(currentTime) {
+    const timeDiff = currentTime - Battle.time;
+    // 计算当前帧与上一帧时间差，如果未超过帧率上限就渲染
+    if (timeDiff > 1000 / (this.maxFps + 10)) {
+      this.render()
+      // 计算当前帧率
+      Battle.fps = 1000 / timeDiff;
+      // 更新当前时间
+      Battle.time = currentTime;
+    }
+    this.animationId = requestAnimationFrame(this.animate.bind(this));
   }
 
   /** 清空画布 */

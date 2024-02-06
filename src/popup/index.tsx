@@ -32,8 +32,6 @@ const Popup = () => {
   const [rocketDegSpeed, setRocketDegSpeed] = useState(5)
   /** 飞机飞行阻力系数 */
   const [rocketDeceleratedCoefficient, setRocketDeceleratedCoefficient] = useState(5)
-  /** 飞机最大速度 */
-  const [rocketMaxSpeed, setRocketMaxSpeed] = useState(10)
   /** 子弹速度 */
   const [bulletSpeed, setBulletSpeed] = useState(15)
   /** 子弹射速 */
@@ -82,15 +80,6 @@ const Popup = () => {
           step={1}
           onValueChange={([val]) => {
             setRocketAccelerated(val)
-          }}
-        />
-        <GameParamSlider
-          label="飞机最大速度"
-          value={[rocketMaxSpeed]}
-          max={100}
-          step={1}
-          onValueChange={([val]) => {
-            setRocketMaxSpeed(val)
           }}
         />
         <GameParamSlider

@@ -24,8 +24,6 @@ class Rocket extends BattleObject {
   /** 前进速度 */
   speedX = 0
   speedY = 0
-  /** 最大速度 */
-  maxSpeed = 10 * Math.sin(Math.PI / 4)
   /** 角度旋转速度 */
   degSpeed = 5
   /** 子弹 */
@@ -143,22 +141,25 @@ class Rocket extends BattleObject {
   }
 
   move() {
-    const deltaSecond = (Date.now() - Battle.time) / 1000
-    // 加速度分量
+    // 当前帧率得到时间间隔
+    const deltaSecond = 1 / Battle.fps
+    // 理论加速度分量
     this.acceleratedX = -this.accelerated * Math.sin((this.angle * Math.PI) / 180)
     this.acceleratedY = this.accelerated * Math.cos((this.angle * Math.PI) / 180)
-    // 减速度分量
+    // 理论减速度分量
     this.deceleratedX = this.getDecelerated(this.speedX)
     this.deceleratedY = this.getDecelerated(this.speedY)
-    // 速度变化分量
-    const deltaVX = (this.acceleratedX + this.deceleratedX) * deltaSecond
-    const deltaVY = (this.acceleratedY + this.deceleratedY) * deltaSecond
-    // 速度分量
-    this.speedX = Math.max(Math.min(this.speedX + deltaVX, this.maxSpeed), -this.maxSpeed)
-    this.speedY = Math.max(Math.min(this.speedY + deltaVY, this.maxSpeed), -this.maxSpeed);
+    // 实际加速度
+    const ax = this.acceleratedX + this.deceleratedX
+    const ay = this.acceleratedY + this.deceleratedY
+    this.speedX += ax * deltaSecond
+    this.speedY += ay * deltaSecond
+    // 当前帧移动的距离 x = v0 * t + 1/2 * a * t^2
+    const deltaX = this.speedX * deltaSecond + 0.5 * ax * deltaSecond * deltaSecond
+    const deltaY = this.speedY * deltaSecond + 0.5 * ay * deltaSecond * deltaSecond
     // 保存当前位置
-    this.x += this.speedX
-    this.y += this.speedY
+    this.x += deltaX
+    this.y += deltaY
     // 边界检测
     const isXOut = this.lines.every(line => {
       return line.every(point => {
@@ -173,7 +174,7 @@ class Rocket extends BattleObject {
     // 移动所有点
     this.lines = this.lines.map((line) => {
       return line.map((point) => {
-        const newPoint = new Point(point.x + this.speedX, point.y + this.speedY)
+        const newPoint = new Point(point.x + deltaX, point.y + deltaY)
         if (isXOut) {
           if (newPoint.x > window.innerWidth) {
             newPoint.x = newPoint.x - window.innerWidth
