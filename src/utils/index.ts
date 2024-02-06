@@ -3,8 +3,20 @@ import { Storage } from "@plasmohq/storage";
 const storage = new Storage()
 
 export interface PageBattleData {
+  /** 是否开始游戏 */
   started?: boolean
+  /** 最大帧率 */
+  maxFps?: number
+  /** 飞机加速度 */
   rocketAccelerated?: number
+  /** 飞机转向灵敏度 */
+  rocketDegSpeed?: number
+  /** 飞机飞行阻力系数 */
+  rocketDeceleratedCoefficient?: number
+  /** 子弹速度 */
+  bulletSpeed?: number
+  /** 子弹射速 */
+  firingRate?: number
 }
 
 const getCacheData = async (): Promise<PageBattleData> => {
@@ -34,6 +46,13 @@ export const getCurrentTabId = async (): Promise<chrome.tabs.Tab | undefined> =>
       resolve(tabs.length ? tabs[0] : undefined)
     })
   })
+}
+
+export const sendMessageToContent = async (data: PageBattleData) => {
+  const currentTab = await getCurrentTabId()
+  if (currentTab) {
+    chrome.tabs.sendMessage(currentTab.id, JSON.stringify(data))
+  }
 }
 
 /** 获取两个数之间的一个随机整数 isIncludesPoint: 是否包括这两个数 */

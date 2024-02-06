@@ -1,3 +1,4 @@
+import Battle from "./Battle";
 import BattleObject from "./BattleObject";
 import Firework from "./Firework";
 import type Point from "./Point";
@@ -29,7 +30,7 @@ class Bullet extends BattleObject {
     ctx.closePath()
     ctx.fill()
     ctx.restore()
-    this.move(this.speed)
+    this.move(this.speed / Battle.fps)
   }
 
   move(delta: number) {
@@ -54,7 +55,7 @@ class Bullet extends BattleObject {
   murderElement() {
     // 由于子弹每帧往前移动speed距离，可能会穿过一些小元素，因此需要判断子弹是否穿过了元素
     // 如果下一帧的移动规矩会跟元素交叉，就消除该元素，并把子弹位置设置为交叉点
-    const deltas = BattleObject.getNumbersWithInterval(0, this.speed, 1)
+    const deltas = BattleObject.getNumbersWithInterval(0, this.speed / Battle.fps, 1)
     const trackPoints = deltas.map(delta => Bullet.movePointFromAngle({ x: this.x, y: this.y }, this.angle, delta))
 
     let el: Element | null

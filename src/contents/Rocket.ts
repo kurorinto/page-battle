@@ -2,8 +2,8 @@ import throttle from 'lodash/throttle'
 import Battle from "./Battle"
 import BattleObject from "./BattleObject"
 import Bullet from "./Bullet"
-import Point from "./Point"
 import Laser from './Laser'
+import Point from "./Point"
 
 class Rocket extends BattleObject {
   /** 绘制线条 */
@@ -25,21 +25,23 @@ class Rocket extends BattleObject {
   speedX = 0
   speedY = 0
   /** 角度旋转速度 */
-  degSpeed = 5
+  degSpeed = 200
   /** 子弹 */
   bullets: Bullet[] = []
   /** 子弹半径 */
   bulletRadius = 5
   /** 子弹速度 */
-  bulletSpeed = 15
+  bulletSpeed = 500
   /** 射速 */
-  firingRate = 100
+  private _firingRate = 100
   /** 激光 */
   laser: Laser
   /** 激光半径 */
   laserRadius = 1
   /** 枪口位置 */
   muzzle: Point
+  /** 飞行阻力系数 */
+  deceleratedCoefficient = 2
 
   /** 朝向角度 */
   set angle(angle: number) {
@@ -52,6 +54,14 @@ class Rocket extends BattleObject {
   }
   get angle() {
     return this._angle
+  }
+
+  set firingRate(firingRate: number) {
+    this.fire = throttle(this._fire.bind(this), firingRate, { trailing: false });
+    this._firingRate = firingRate
+  }
+  get firingRate() {
+    return this._firingRate
   }
 
   constructor({ x, y, w, h, angle = 0 }: { x: number; y: number; w: number; h: number; angle?: number }) {
@@ -74,7 +84,7 @@ class Rocket extends BattleObject {
     // 初始化枪口位置
     this.getMuzzlePosition()
     this.rotate(angle)
-    this.fire = throttle(this.fire.bind(this), this.firingRate, { trailing: false });
+    this.fire = throttle(this._fire.bind(this), this.firingRate, { trailing: false });
     this.createLase()
   }
 
@@ -127,7 +137,7 @@ class Rocket extends BattleObject {
   }
 
   getDecelerated(speed: number) {
-    return -speed * 2
+    return -speed * this.deceleratedCoefficient
   }
 
   rotate(angle: number) {
@@ -216,10 +226,11 @@ class Rocket extends BattleObject {
     this.laser.start = this.muzzle
   }
 
-  fire() {
+  private _fire() {
     const { x, y } = this.muzzle;
     this.bullets.push(new Bullet({ x, y, angle: this.angle, r: this.bulletRadius, speed: this.bulletSpeed }));
   }
+  fire: () => void
 
   createLase() {
     const laserStart = this.muzzle

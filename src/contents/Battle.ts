@@ -9,6 +9,7 @@ class Battle {
   downingActions: Array<Action> = []
   animationId: number
   maxFps = 60
+  rocketAccelerated = 1000
   static fps = Infinity
   static time = performance.now()
 
@@ -138,15 +139,15 @@ class Battle {
           this.rocket.fire()
           break
         case 'rotate':
-          this.rocket.rotate(this.rocket.degSpeed)
+          this.rocket.rotate(this.rocket.degSpeed / Battle.fps)
           break
         case 'reRotate':
-          this.rocket.rotate(-this.rocket.degSpeed)
+          this.rocket.rotate(-this.rocket.degSpeed / Battle.fps)
           break
       }
     })
     if (this.downingActions.includes('move')) {
-      this.rocket.accelerated = 1000
+      this.rocket.accelerated = this.rocketAccelerated
     } else {
       this.rocket.accelerated = 0
     }

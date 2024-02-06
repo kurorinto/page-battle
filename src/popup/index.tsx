@@ -4,36 +4,37 @@ import { Button } from "./components/ui/button"
 
 import "./index.scss"
 
-import { getCache, getCurrentTabId, setCache } from "~utils"
+import {
+  getCache,
+  setCache,
+  type PageBattleData,
+  sendMessageToContent
+} from "~utils"
 
 import GameParamSlider from "./CustomComponents/GameParamSlider"
 
-export interface Message {
-  started: boolean
-}
-
-
-
 const Popup = () => {
   const [loaded, setLoaded] = useState(false)
-  const [started, setStarted] = useState(false)
-  const [maxFps, setMaxFps] = useState(60)
-  /** 飞机加速度 */
-  const [rocketAccelerated, setRocketAccelerated] = useState(5)
-  /** 飞机转向灵敏度 */
-  const [rocketDegSpeed, setRocketDegSpeed] = useState(5)
-  /** 飞机飞行阻力系数 */
-  const [rocketDeceleratedCoefficient, setRocketDeceleratedCoefficient] =
-    useState(5)
-  /** 子弹速度 */
-  const [bulletSpeed, setBulletSpeed] = useState(15)
-  /** 子弹射速 */
-  const [firingRate, setFiringRate] = useState(10)
+  const [pageBattleData, setPageBattleData] = useState<PageBattleData>({
+    started: false,
+    maxFps: 60,
+    rocketAccelerated: 1200,
+    rocketDeceleratedCoefficient: 2,
+    rocketDegSpeed: 300,
+    bulletSpeed: 500,
+    firingRate: 100
+  })
 
   const init = async () => {
     const cacheData = await getCache()
-    setStarted(cacheData.started)
+    setPageBattleData(cacheData)
     setLoaded(true)
+  }
+
+  const pageBattleDataSetter = <T extends keyof PageBattleData>(name: T, value: PageBattleData[T]) => {
+    setPageBattleData({ ...pageBattleData, [name]: value })
+    // 发送消息给content
+    sendMessageToContent({ [name]: value })
   }
 
   useEffect(() => {
@@ -41,8 +42,8 @@ const Popup = () => {
   }, [])
 
   useEffect(() => {
-    setCache({ started })
-  }, [started])
+    setCache(pageBattleData)
+  }, [pageBattleData])
 
   return (
     <div className="w-[360px] p-[8px] flex flex-col gap-y-[12px] bg-[#fff]">
@@ -56,75 +57,72 @@ const Popup = () => {
       <div className="flex flex-col gap-y-[12px]">
         <GameParamSlider
           label="最大帧率"
-          value={[maxFps]}
+          value={[pageBattleData.maxFps]}
           max={60}
           min={10}
           step={1}
           onValueChange={([val]) => {
-            setMaxFps(val)
+            pageBattleDataSetter("maxFps", val)
           }}
         />
         <GameParamSlider
           label="飞机加速度"
-          value={[rocketAccelerated]}
-          max={100}
-          step={1}
+          value={[pageBattleData.rocketAccelerated]}
+          max={10000}
+          min={500}
+          step={100}
           onValueChange={([val]) => {
-            setRocketAccelerated(val)
+            pageBattleDataSetter("rocketAccelerated", val)
           }}
         />
         <GameParamSlider
           label="飞行阻力系数"
-          value={[rocketDeceleratedCoefficient]}
-          max={100}
-          step={1}
+          value={[pageBattleData.rocketDeceleratedCoefficient]}
+          max={5}
+          min={1}
+          step={0.1}
           onValueChange={([val]) => {
-            setRocketDeceleratedCoefficient(val)
+            pageBattleDataSetter("rocketDeceleratedCoefficient", val)
           }}
         />
         <GameParamSlider
           label="转向灵敏度"
-          value={[rocketDegSpeed]}
-          max={100}
-          step={1}
+          value={[pageBattleData.rocketDegSpeed]}
+          max={1000}
+          min={200}
+          step={10}
           onValueChange={([val]) => {
-            setRocketDegSpeed(val)
+            pageBattleDataSetter("rocketDegSpeed", val)
           }}
         />
         <GameParamSlider
           label="子弹速度"
-          value={[bulletSpeed]}
-          max={100}
-          step={1}
+          value={[pageBattleData.bulletSpeed]}
+          max={2000}
+          min={200}
+          step={100}
           onValueChange={([val]) => {
-            setBulletSpeed(val)
+            pageBattleDataSetter("bulletSpeed", val)
           }}
         />
         <GameParamSlider
-          label="子弹射速"
-          value={[firingRate]}
-          max={100}
-          step={1}
+          label="子弹发射间隔"
+          value={[pageBattleData.firingRate]}
+          max={500}
+          min={10}
+          step={10}
           onValueChange={([val]) => {
-            setFiringRate(val)
+            pageBattleDataSetter("firingRate", val)
           }}
         />
       </div>
       {loaded && (
         <Button
-          variant={started ? "destructive" : "default"}
+          variant={pageBattleData.started ? "destructive" : "default"}
           onClick={async () => {
-            setStarted(!started)
-
-            const currentTab = await getCurrentTabId()
-            if (currentTab) {
-              const message: Message = {
-                started: !started
-              }
-              chrome.tabs.sendMessage(currentTab.id, JSON.stringify(message))
-            }
+            pageBattleDataSetter("started", !pageBattleData.started)
           }}>
-          {started ? "Stop" : "Start"}
+          {pageBattleData.started ? "Stop" : "Start"}
         </Button>
       )}
     </div>

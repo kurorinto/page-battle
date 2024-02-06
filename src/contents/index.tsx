@@ -2,8 +2,7 @@ import type { PlasmoCSConfig, PlasmoCSUIProps } from "plasmo"
 import { useCallback, useEffect, useRef, type FC } from "react"
 
 import { EXTENSION_ID } from "~constants"
-import type { Message } from "~popup"
-import { getCache } from "~utils"
+import { getCache, type PageBattleData } from "~utils"
 
 import Battle from "./Battle"
 
@@ -21,7 +20,7 @@ const MyPopup: FC<PlasmoCSUIProps> = ({ anchor }) => {
   // 初始化
   const init = async () => {
     const cacheData = await getCache()
-    cacheData.started && createBattle()
+    setGameSettings(cacheData)
   }
 
   const createBattle = () => {
@@ -33,10 +32,40 @@ const MyPopup: FC<PlasmoCSUIProps> = ({ anchor }) => {
     battle.current?.destroy()
   }
 
+  const setGameSettings = (data: PageBattleData) => {
+    Object.keys(data).forEach((key: keyof PageBattleData) => {
+      switch (key) {
+        case "started":
+          data.started ? createBattle() : destroyBattle()
+          break
+        case 'maxFps':
+          battle.current.maxFps = data.maxFps
+          break
+        case 'rocketAccelerated':
+          battle.current.rocketAccelerated = data.rocketAccelerated
+          break
+        case 'rocketDeceleratedCoefficient':
+          battle.current.rocket.deceleratedCoefficient = data.rocketDeceleratedCoefficient
+          break
+        case 'rocketDegSpeed':
+          battle.current.rocket.degSpeed = data.rocketDegSpeed
+          break
+        case 'bulletSpeed':
+          battle.current.rocket.bulletSpeed = data.bulletSpeed
+          break
+        case 'firingRate':
+          battle.current.rocket.firingRate = data.firingRate
+          break
+        default:
+          break
+      }
+    })
+  }
+
   const messageHandler = useCallback<MessageHandler>((messageJSON, sender) => {
     if (sender.id === EXTENSION_ID) {
-      const message: Message = JSON.parse(messageJSON)
-      message.started ? createBattle() : destroyBattle()
+      const data: PageBattleData = JSON.parse(messageJSON)
+      setGameSettings(data)
     }
   }, [])
 
