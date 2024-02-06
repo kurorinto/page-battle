@@ -1,7 +1,7 @@
+import { getRandomInt } from "~utils";
 import BattleObject from "./BattleObject";
 import Line from "./Line";
 import type Point from "./Point";
-import { getRandomInt } from "./utils";
 
 class FireWorkLine extends Line {
   startPos: Point

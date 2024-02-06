@@ -1,7 +1,7 @@
+import { getRandomInt } from "~utils";
 import BattleObject from "./BattleObject";
 import FireWorkLine from "./FireWorkLine";
 import Point from "./Point";
-import { getRandomInt } from "./utils";
 
 class Firework extends BattleObject {
   /** 爆炸射线 */

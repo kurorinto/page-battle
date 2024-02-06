@@ -1,14 +1,11 @@
 import type { PlasmoCSConfig, PlasmoCSUIProps } from "plasmo"
 import { useCallback, useEffect, useRef, type FC } from "react"
 
-import { Storage } from "@plasmohq/storage"
-
 import { EXTENSION_ID } from "~constants"
 import type { Message } from "~popup"
+import { getCache } from "~utils"
 
 import Battle from "./Battle"
-
-const storage = new Storage()
 
 type MessageHandler = Parameters<typeof chrome.runtime.onMessage.addListener>[0]
 
@@ -23,10 +20,8 @@ const MyPopup: FC<PlasmoCSUIProps> = ({ anchor }) => {
 
   // 初始化
   const init = async () => {
-    const started = JSON.parse(
-      await storage.get("page_battle_started")
-    ) as boolean
-    started && createBattle()
+    const cacheData = await getCache()
+    cacheData.started && createBattle()
   }
 
   const createBattle = () => {
