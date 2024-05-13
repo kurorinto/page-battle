@@ -1,7 +1,6 @@
 import type { PlasmoCSConfig, PlasmoCSUIProps } from "plasmo"
 import { useCallback, useEffect, useRef, type FC } from "react"
 
-import { EXTENSION_ID } from "~constants"
 import { getCache, type PageBattleData } from "~utils"
 
 import Battle from "./Battle"
@@ -63,7 +62,7 @@ const MyPopup: FC<PlasmoCSUIProps> = ({ anchor }) => {
   }
 
   const messageHandler = useCallback<MessageHandler>((messageJSON, sender) => {
-    if (sender.id === EXTENSION_ID) {
+    if (sender.id === chrome.runtime.id) {
       const data: PageBattleData = JSON.parse(messageJSON)
       setGameSettings(data)
     }
